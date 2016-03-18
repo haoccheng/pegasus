@@ -1,51 +1,39 @@
 # text justification.
-# https://leetcode.com/problems/text-justification/
 
-def justify(words, max_width):
-  start = 0
-  row = []
-  r1 = []
-  while (start < len(words)):
-    if len(row) == 0:
-      row.append(words[start]) # assume no word is longer than max_width
-      start += 1
-    else:
-      v = sum([len(e) for e in row]) + len(words[start]) + len(row)
-      if v <= max_width:
-        row.append(words[start])
-        start += 1
-      else:
-        r1.append(row)
-        row = []
-  if len(row) > 0:
-    r1.append(row)
-  # justify.
-  ret = []
-  for irow in range(len(r1)):
-    row = r1[irow]
-    if irow == len(r1)-1:
-      s = ' '.join(row)
-      s = s + ' '*(max_width - len(s))
-      ret.append(s)
-    else:
-      if len(row) == 1:
-        ret.append(row[0] + (' ' * (max_width - len(row[0]))))
-      else:
-        ns = max_width - sum([len(e) for e in row])
-        ns1 = (int)(ns / (len(row)-1))
-        ns0 = ns - (len(row)-1) * ns1
-        s = row[0]
-        for i in range(1, len(row)):
-          if i <= ns0:
-            s = s + ' '*ns1 + ' ' + row[i]
-          else:
-            s = s + ' '*ns1 + row[i]
-        ret.append(s)
-  return ret
+def line_justification(words, maxlen):
+  output = ''
+  if len(words) == 1:
+    output = words[0]
+  else:
+    nspace = maxlen - sum([len(w) for w in words])
+    output = words[0]
+    nbreak = len(words) - 1
+    for i in range(1, len(words)):
+      space = nspace / nbreak
+      output += ' ' * space + words[i]
+      nspace -= space
+      nbreak -= 1
+  return output
 
-#rs = justify(["This", "is", "an", "example", "of", "text", "justification."], 16)
-#rs = justify(["Don't","go","around","saying","the","world","owes","you","a","living;","the","world","owes","you","nothing;","it","was","here","first."], 30)
-#rs = justify([''], 2)
-rs = justify(['a', 'b', 'c', 'd', 'e'], 3)
-for r in rs:
-  print '[%s]' % r
+def justification(input, maxlen):
+  # tokenization.
+  words = input.split()
+  words = [words.strip() for words in words if len(words) > 0]
+  output = []
+  # 
+  curr_word = []
+  curr_sum = 0 
+  for word in words:
+    if curr_sum + len(word) + len(curr_word) <= maxlen:
+      curr_word.append(word)
+      curr_sum += len(word)
+    else:
+      output.append(line_justification(curr_word, maxlen))
+      curr_word = [word]
+      curr_sum = len(word)
+  if len(curr_word) > 0:
+    output.append(line_justification(curr_word, maxlen))
+  for row in output:
+    print row
+
+justification('Ruby is a dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.', 15)
